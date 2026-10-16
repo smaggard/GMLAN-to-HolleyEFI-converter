@@ -1,58 +1,25 @@
 /*
- * CAN Bus Bridge between ESP32 TWAI (CAN1) and MCP2515 (CAN2)
- *
- * Description:
- * This code creates a bidirectional bridge between two CAN interfaces:
- *   1. CAN1 - ESP32's native TWAI controller (CAN protocol)
- *   2. CAN2 - External MCP2515 module connected via SPI
- *
- * Functionality:
- * - Monitors CAN1 bus for incoming messages
- * - Forwards all received CAN1 messages to CAN2
- * - Prints all transactions to Serial monitor for debugging
- * - Handles basic error detection and reporting
- *
- * Hardware Configuration:
- * CAN1 (TWAI):
- *   - RX: GPIO6
- *   - TX: GPIO7
- *   - Speed: 500kbps
- * 
- * CAN2 (MCP2515):
- *   - SPI Bus: HSPI
- *   - SCK: GPIO12
- *   - MISO: GPIO13
- *   - MOSI: GPIO11
- *   - CS: GPIO10
- *   - Speed: 1Mbps
- *   - Crystal: 16MHz
- *
- * Libraries Required:
- * - driver/twai.h (ESP32 native)
- * - MCP_CAN_lib (https://github.com/coryjfowler/MCP_CAN_lib)
- * - SPI.h (Arduino/ESP32)
- *
- * Notes:
- * - Currently forwards messages unmodified
- * - Add message filtering/modification in CAN1_readMsg() if needed
- * - Serial monitor runs at 115200 baud
- */
+ * Reads certain parameters from GM E38 ECU and sends them as CAN inputs to a Holley EFI. 
+ * This is firmware for an AutoSportLabs ESP32-CAN-X2 board 
+ * and will send several factory messages to a Holley EFI system over CAN.
+*/
 
+// Include required libraries
 #include <driver/twai.h>
 #include <mcp_can.h>    // ADD library https://github.com/coryjfowler/MCP_CAN_lib
 #include <SPI.h>
-//#include <Arduino_FreeRTOS.h>
 
-// CAN1 (TWAI) Pins
+// Define CAN1 (TWAI) Pins
 #define CAN1_RX_PIN GPIO_NUM_6
 #define CAN1_TX_PIN GPIO_NUM_7
 
-// CAN2 (MCP2515) Custom SPI Pins
+// Define CAN2 (MCP2515) Custom SPI Pins
 #define CAN2_CS_PIN GPIO_NUM_10
 #define CAN2_SPI_SCK GPIO_NUM_12
 #define CAN2_SPI_MISO GPIO_NUM_13
 #define CAN2_SPI_MOSI GPIO_NUM_11
 
+// Define CAN2 CAN
 SPIClass CAN2_SPI(HSPI); // HSPI bus
 MCP_CAN CAN2(&CAN2_SPI, CAN2_CS_PIN);
 
